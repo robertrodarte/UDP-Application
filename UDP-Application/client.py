@@ -1,9 +1,6 @@
 import socket
 import base64
-import secrets
-import os
 import threading
-import cryptography
 from utils.crypto_utils import (
     generate_rsa_keypair,
     decrypt_with_rsa,
@@ -15,6 +12,7 @@ from utils.crypto_utils import (
 
 SERVER_PORT = 12345
 aes_key = None
+messages = []
 
 
 def receive_messages(sock, private_key):
@@ -22,9 +20,12 @@ def receive_messages(sock, private_key):
     while True:
         data, _ = sock.recvfrom(4096)
         if aes_key is None:
-            encrypted_key = base64.b64decode(data)
-            aes_key = decrypt_with_rsa(private_key, encrypted_key)
-            print("Received and decrypted AES key.")
+            try:
+                encrypted_key = base64.b64decode(data)
+                aes_key = decrypt_with_rsa(private_key, encrypted_key)
+                print("Received and decrypted AES key.")
+            except Exception as e:
+                print(f"Error decrypting AES key: {e}")
         else:
             try:
                 message_with_hmac = data.decode()
@@ -34,7 +35,8 @@ def receive_messages(sock, private_key):
                     print("HMAC verification failed.")
                     continue
                 decrypted = decrypt_with_aes(aes_key, encrypted)
-                print("Message:", decrypted)
+                print("========== Received Message ==========")
+                print(f"Server Broadcast: {decrypted}\n")
             except Exception as e:
                 print(f"Error receiving message: {e}")
                 pass
@@ -47,12 +49,17 @@ def main():
     # Generate RSA keys and send public key
     private_key, public_key = generate_rsa_keypair()
     sock.sendto(base64.b64encode(public_key), server_addr)
+    # GUI
+    print("\n====================================\n")
+    print("========== WELCOME CLIENT ==========\n")
+    print("====================================\n")
+    print("Begin typing your messages...\n")
     # Start thread to receive messages
     threading.Thread(
         target=receive_messages, args=(sock, private_key), daemon=True
     ).start()
     while True:
-        msg = input()
+        msg = input("Client: ")
         if aes_key:
             encrypted = encrypt_with_aes(aes_key, msg)
             hmac = generate_hmac(aes_key, encrypted)

@@ -1,9 +1,5 @@
 import socket
 import base64
-import secrets
-import os
-import threading
-import cryptography
 from utils.crypto_utils import (
     generate_aes_key,
     encrypt_with_rsa,
@@ -36,7 +32,8 @@ def handle_messages(sock):
                     print(f"HMAC verification failed for {addr}")
                     continue
                 decrypted = decrypt_with_aes(aes_key, encrypted)
-                print(f"Message from {addr}: {decrypted}")
+                print("========== Received Message ==========")
+                print(f"Message from {addr}: {decrypted}\n")
             except Exception as e:
                 print(f"Decryption failed for {addr}: {e}")
                 continue
@@ -61,6 +58,10 @@ def handle_messages(sock):
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((LOCAL_IP, SERVER_PORT))
+    # GUI
+    print("\n====================================\n")
+    print("========== WELCOME SERVER ==========\n")
+    print("====================================\n")
     print("Server started on port: " + str(SERVER_PORT))
     handle_messages(sock)
 
