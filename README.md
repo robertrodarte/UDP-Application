@@ -6,6 +6,8 @@
 4. On the client, open a terminal
 5. Navigate and run the following command: `python udp_application.py`
 6. Enter "2" to run a client
+7. Repeat steps 4-6 on other client devices
+8. Begin sending messages
 
 ## Resources used
 ### Libraries
