@@ -19,4 +19,4 @@
 - crypto_utils.py
 
 ## Author
-Robert Rodarte
+Robert Rodarte [Github: robertrodarte]
