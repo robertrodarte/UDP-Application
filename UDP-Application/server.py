@@ -10,13 +10,33 @@ from utils.crypto_utils import (
 )
 
 clients = {}
-client_keys = {}
+messages = []  # Stores received messages
 
 LOCAL_IP = "localhost"
 SERVER_PORT = 12345
 
 
+def display_gui():
+    global messages, clients
+    # Clear the screen
+    print("\033[H\033[J", end="")  # ANSI escape code to clear the terminal
+    print("\n====================================")
+    print("=*=*=*=*=* WELCOME SERVER *=*=*=*=*=")
+    print("====================================\n")
+    print("--------- Connected Clients:--------")
+    print("------------------------------------")
+    for client in clients.keys():
+        print(f"(\033[1;34m{client}\033[0m)")
+    print("\n-------- Received Messages: --------")
+    print("------------------------------------")
+    for msg in messages[-10:]:  # Display the last 10 messages
+        print(f"\033[1;32m{msg}\033[0m")
+    print("\nWaiting for messages...\n", flush=True)
+
+
 def handle_messages(sock):
+    """Handle incoming messages from clients."""
+    global clients, messages
     while True:
         # Get data and address from the socket
         data, addr = sock.recvfrom(4096)
@@ -29,13 +49,15 @@ def handle_messages(sock):
                 encrypted, hmac = message_with_hmac.split(":")
                 verified_hmac = verify_hmac(aes_key, encrypted, hmac)
                 if not verified_hmac:
-                    print(f"HMAC verification failed for {addr}")
+                    messages.append(f"HMAC verification failed for {addr}")
+                    display_gui()
                     continue
                 decrypted = decrypt_with_aes(aes_key, encrypted)
-                print("========== Received Message ==========")
-                print(f"Message from {addr}: {decrypted}\n")
+                messages.append(f"Client {addr}: {decrypted}")
+                display_gui()
             except Exception as e:
-                print(f"Decryption failed for {addr}: {e}")
+                messages.append(f"Decryption failed for {addr}: {e}")
+                display_gui()
                 continue
             # Broadcast the encrypted message to other clients
             for client_addr, key in clients.items():
@@ -51,18 +73,17 @@ def handle_messages(sock):
             encrypted_key = encrypt_with_rsa(rsa_pub_key, aes_key)
             sock.sendto(base64.b64encode(encrypted_key), addr)
             clients[addr] = aes_key
-            client_keys[addr] = rsa_pub_key
-            print(f"Key exchanged with {addr}")
+            messages.append(f"Key exchanged with {addr}")
+            display_gui()
 
 
 def main():
+    global clients, messages
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((LOCAL_IP, SERVER_PORT))
-    # GUI
-    print("\n====================================\n")
-    print("========== WELCOME SERVER ==========\n")
-    print("====================================\n")
-    print("Server started on port: " + str(SERVER_PORT))
+
+    # Initial GUI display
+    display_gui()
     handle_messages(sock)
 
 
