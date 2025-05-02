@@ -1,5 +1,6 @@
 import socket
 import base64
+import logging
 from utils.crypto_utils import (
     generate_aes_key,
     encrypt_with_rsa,
@@ -7,6 +8,12 @@ from utils.crypto_utils import (
     encrypt_with_aes,
     generate_hmac,
     verify_hmac,
+)
+
+logging.basicConfig(
+    filename="Logging.txt",
+    level=logging.INFO, 
+    format="%(asctime)s - %(levelname)s - Server: %(message)s"
 )
 
 clients = {}
@@ -40,6 +47,7 @@ def handle_messages(sock):
     while True:
         # Get data and address from the socket
         data, addr = sock.recvfrom(4096)
+        logging.info(f"Received data from {addr}")
 
         if addr in clients:
             aes_key = clients[addr]
@@ -49,14 +57,21 @@ def handle_messages(sock):
                 encrypted, hmac = message_with_hmac.split(":")
                 verified_hmac = verify_hmac(aes_key, encrypted, hmac)
                 if not verified_hmac:
-                    messages.append(f"HMAC verification failed for {addr}")
+                    logging.error(f"HMAC verification failed for {addr}")
                     display_gui()
                     continue
+                logging.info(f"HMAC verified for {addr}")
                 decrypted = decrypt_with_aes(aes_key, encrypted)
                 messages.append(f"Client {addr}: {decrypted}")
+                logging.info(f"Decrypted Successfully: {decrypted}")
                 display_gui()
+
+                # Send acknowledgment to the client
+                ack_message = "ACK"
+                sock.sendto(ack_message.encode(), addr)
+                logging.info(f"Sent acknowledgment to {addr}")
             except Exception as e:
-                messages.append(f"Decryption failed for {addr}: {e}")
+                logging.error(f"Error Occurred: {e}")
                 display_gui()
                 continue
             # Broadcast the encrypted message to other clients
@@ -66,6 +81,7 @@ def handle_messages(sock):
                     new_hmac = generate_hmac(key, re_encrypted)
                     final_message = f"{re_encrypted}:{new_hmac}"
                     sock.sendto(final_message.encode(), client_addr)
+                    logging.info(f"Message sent to {client_addr}")
         else:
             # First message is assumed to be client's RSA public key
             rsa_pub_key = base64.b64decode(data)
@@ -74,6 +90,7 @@ def handle_messages(sock):
             sock.sendto(base64.b64encode(encrypted_key), addr)
             clients[addr] = aes_key
             messages.append(f"Key exchanged with {addr}")
+            logging.info(f"Key exchanged with {addr}")
             display_gui()
 
 
