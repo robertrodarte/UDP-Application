@@ -50,7 +50,7 @@ You can also run directly:
 
 ### 🔸 Key Exchange
 
-- Clients generate an **RSA key pair**.
+- Clients generate an **RSA key pair** (Public and Private).
 - The **public key** is sent to the server.
 - The server generates a unique **AES key** for each client.
 - The AES key is encrypted with the client’s RSA public key and sent back.
@@ -65,7 +65,7 @@ You can also run directly:
 ### 🔸 Message Delivery
 
 - The server sends an `ACK` to confirm successful receipt.
-- The client retries sending messages (up to 3 times) if no ACK is received.
+- The client retries sending messages (up to 3 times) if no ACK is received within a timeout period.
 
 ---
 
@@ -79,6 +79,6 @@ You can also run directly:
 
 ### ⚠️ Limitations
 
-- **UDP is unreliable** by nature. This app uses basic ACK-based retries but does **not guarantee** delivery.
+- This app uses basic ACK-based retries but does **not guarantee** delivery.
 - **No authentication** — server accepts any incoming public key.
 - No support for communication outside of LAN or localhost.
