@@ -1,84 +1,84 @@
 # 🔐 Secure UDP Chat Application
 
-## 📦 Features
+## 🚀 How to Run the Application
 
-- **RSA (asymmetric)** and **AES (symmetric)** for encrypted communication
-- **HMAC** for message authentication
-- Retransmission mechanism over UDP using ACKs
-- Terminal-based GUI for client and server
-- Logging of all events to `Logging.txt`
+> Ensure you have **Python 3** installed.
 
----
-
-## 🚀 How to Run
-
-> 💡 You will need Python 3 installed to run the application.
-
-### 1. Clone the Project
+### 1. Install Requirements
 
 ```bash
-git clone https://github.com/robertrodarte/UDP-Application.git
-cd UDP-Application
+pip install requirements.txt
 ```
 
-### 2. Install Requirements
+### 2. Run the Application
 
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Run the App
-
-Launch the app menu (Note: Only one server can be ran at a time):
+Launch the application to choose between server or client:
 
 ```bash
 python udp_application.py
 ```
 
-You'll be prompted to:
+Or run manually:
 
-- Run as **Server**
-- Run as **Client**
-- Exit
-
-You can also run directly:
-
-- `python server.py`
-- `python client.py`
-
-## 🔐 Cryptographic Design Summary
-
-### 🔸 Key Exchange
-
-- Clients generate an **RSA key pair** (Public and Private).
-- The **public key** is sent to the server.
-- The server generates a unique **AES key** for each client.
-- The AES key is encrypted with the client’s RSA public key and sent back.
-
-### 🔸 Message Encryption
-
-- All messages are encrypted with AES in symmetric mode.
-- Each message includes:
-  - The AES-encrypted text
-  - An **HMAC** to verify the message's integrity
-
-### 🔸 Message Delivery
-
-- The server sends an `ACK` to confirm successful receipt.
-- The client retries sending messages (up to 3 times) if no ACK is received within a timeout period.
+```bash
+python server.py  # Starts the server
+python client.py  # Starts a new client
+```
 
 ---
 
-## ⚙️ Assumptions & Limitations
+## 🔐 Summary of Cryptographic Design Choices
+
+### RSA Public/Private Key Pair
+
+- Each client generates an RSA key pair on startup.
+- The public key is sent to the server upon initial connection.
+
+### AES Symmetric Key
+
+- The server generates a random AES key for each client.
+- This key is encrypted with the client’s RSA public key and sent back securely.
+
+### Encrypted Communication
+
+- Once the client decrypts the AES key with its private RSA key, all further communication is encrypted with AES.
+
+### Message Integrity
+
+- Each message includes an HMAC for integrity verification.
+- The recipient compares the received HMAC with a locally generated one to ensure the message hasn’t been altered.
+
+### Reliability
+
+- Since UDP does not guarantee delivery, ACKs are used.
+- The server sends an acknowledgment for every message received.
+- The client retries sending a message up to three times if no ACK is received within a given timeout period.
+
+---
+
+## ⚙️ Assumptions and Limitations
 
 ### ✅ Assumptions
 
-- Clients send a **valid RSA public key** on connection.
-- Server is trusted to distribute AES keys securely.
-- Messages are text-based and under 4096 bytes.
+- All clients correctly generate and send RSA public keys.
+- The AES key is securely exchanged and used only between a specific client-server pair.
+- Messages are short enough to be sent in a single UDP packet (≤ 4096 bytes).
 
 ### ⚠️ Limitations
 
-- This app uses basic ACK-based retries but does **not guarantee** delivery.
-- **No authentication** — server accepts any incoming public key.
-- No support for communication outside of LAN or localhost.
+- Prone to duplicate messages and there is no re-ordering.
+- No user authentication — any client can send a public key to the server.
+- No persistent storage — messages are not saved beyond runtime.
+- Only used for local or LAN use.
+
+---
+
+## 🖥️ User Interface and Logging
+
+- The `udp_application.py` script provides a menu to launch either client or server.
+- The GUI uses ANSI escape codes to colorize:
+  - Client messages
+  - Server broadcasts
+  - Errors
+- Chat history and a live input prompt are shown.
+- All actions are logged to `Logging.txt` for debugging and traceability.
