@@ -42,6 +42,7 @@ def receive_messages(sock, private_key):
                     encrypted_key = base64.b64decode(data)
                     aes_key = decrypt_with_rsa(private_key, encrypted_key)
                     messages.append("You: Received and decrypted AES key.")
+                    logging.info("AES key received and decrypted successfully.")
                     display_gui()
                 except Exception as e:
                     logging.error(f"Error decrypting AES key: {e}")

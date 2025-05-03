@@ -86,7 +86,9 @@ def handle_messages(sock):
             # First message is assumed to be client's RSA public key
             rsa_pub_key = base64.b64decode(data)
             aes_key = generate_aes_key()
+            logging.info(f"Generated AES key for {addr}")
             encrypted_key = encrypt_with_rsa(rsa_pub_key, aes_key)
+            logging.info(f"Encrypted AES key for {addr}")
             sock.sendto(base64.b64encode(encrypted_key), addr)
             clients[addr] = aes_key
             messages.append(f"Key exchanged with {addr}")
