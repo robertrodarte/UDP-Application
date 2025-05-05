@@ -12,8 +12,8 @@ from utils.crypto_utils import (
 
 logging.basicConfig(
     filename="Logging.txt",
-    level=logging.INFO, 
-    format="%(asctime)s - %(levelname)s - Server: %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - Server: %(message)s",
 )
 
 clients = {}

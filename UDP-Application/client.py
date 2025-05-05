@@ -14,7 +14,7 @@ from utils.crypto_utils import (
 logging.basicConfig(
     filename="Logging.txt",
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - Client: %(message)s"
+    format="%(asctime)s - %(levelname)s - Client: %(message)s",
 )
 
 SERVER_PORT = 12345
@@ -105,7 +105,9 @@ def main():
     logging.info("Public key sent to server.")
 
     # Start background receiver
-    threading.Thread(target=receive_messages, args=(sock, private_key), daemon=True).start()
+    threading.Thread(
+        target=receive_messages, args=(sock, private_key), daemon=True
+    ).start()
 
     # Input loop
     while True:
@@ -132,7 +134,9 @@ def main():
                     ack_received = True
                     break
                 else:
-                    logging.warning(f"No ACK received, retrying ({attempt + 1}/{retries})...")
+                    logging.warning(
+                        f"No ACK received, retrying ({attempt + 1}/{retries})..."
+                    )
 
             except Exception as e:
                 logging.error(f"Send error: {e}")
@@ -143,7 +147,6 @@ def main():
         else:
             messages.append("Error: Failed to send message after retries.")
         display_gui()
-
 
 
 if __name__ == "__main__":
