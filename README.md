@@ -69,7 +69,7 @@ python client.py  # Starts a new client
 - Prone to duplicate messages and there is no re-ordering.
 - No user authentication — any client can send a public key to the server.
 - No persistent storage — messages are not saved beyond runtime.
-- Only used for local or LAN use.
+- Only used for local use.
 
 ---
 
