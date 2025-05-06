@@ -10,9 +10,9 @@ def main():
     while True:
         choice = input("Select an option: ")
         if choice == "1":
-            os.system("python server.py")
+            os.system("python newServer.py")
         elif choice == "2":
-            os.system("python client.py")
+            os.system("python newClient.py")
         elif choice == "3":
             print("Exiting...")
             break
