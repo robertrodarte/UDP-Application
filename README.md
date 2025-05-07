@@ -21,13 +21,19 @@ python udp_application.py
 Or run manually:
 
 ```bash
-python server.py  # Starts the server
-python client.py  # Starts a new client
+python newServer.py  # Starts the server
+python newClient.py  # Starts a new client
 ```
 
 ---
 
 ## 🔐 Summary of Cryptographic Design Choices
+
+### Packet Format
+- Message Type: Tells the server if the message is a key exchange.
+- Message: AES encrypted data being sent by the client
+- HMAC: Generated HMAC for message integrity
+- [Message Type | Message | HMAC]
 
 ### RSA Public/Private Key Pair
 
@@ -62,12 +68,11 @@ python client.py  # Starts a new client
 
 - All clients correctly generate and send RSA public keys.
 - The AES key is securely exchanged and used only between a specific client-server pair.
-- Messages are short enough to be sent in a single UDP packet (≤ 4096 bytes).
 
 ### ⚠️ Limitations
 
 - Prone to duplicate messages and there is no re-ordering.
-- No user authentication — any client can send a public key to the server.
+- No user authentication — any client can send a public key to the server as long as packet form is correct.
 - No persistent storage — messages are not saved beyond runtime.
 - Only used for local use.
 
