@@ -87,3 +87,10 @@ python newClient.py  # Starts a new client
   - Errors
 - Chat history and a live input prompt are shown.
 - All actions are logged to `Logging.txt` for debugging and traceability.
+
+## 📖 Sphinx Documentation Steps
+From the UDP Application directory run the following command to view application documentation
+
+```bash
+start ./docs/_build/html/index.html
+```
